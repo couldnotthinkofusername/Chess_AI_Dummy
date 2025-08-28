@@ -1,0 +1,6 @@
+python-chess
+streamlit
+numpy
+torch
+streamlit-extras
+scikit-learn
