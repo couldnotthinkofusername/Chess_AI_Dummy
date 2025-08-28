@@ -425,12 +425,18 @@ def main() -> None:
             white_mv = sans[i]
             black_mv = sans[i+1] if i+1 < len(sans) else ""
             if black_mv:
-                row = f"<span style='color:#000'>{white_mv} - {black_mv}</span>"
+                row = f"<span style='color:#000000'>{white_mv} - {black_mv}</span>"
             else:
-                row = f"<span style='color:#000'>{white_mv}</span>"
+                row = f"<span style='color:#000000'>{white_mv}</span>"
             rows.append(row)
         history_html = "".join([f"<div>{row}</div>" for row in rows])
-        st.markdown("<div class='panel'><b>Move history</b><div class='move-list'>"+ history_html +"</div></div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='panel'>"
+            "<b style='color:#000000'>Move history</b>"
+            "<div class='move-list'>" + history_html + "</div>"
+            "</div>",
+            unsafe_allow_html=True
+        )
 
     if board.turn == player_color:
         if move_input:
