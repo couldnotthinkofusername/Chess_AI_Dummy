@@ -3,6 +3,7 @@ import chess
 import chess.svg
 import numpy as np
 import torch
+import torch.nn
 from sklearn.linear_model import LinearRegression
 from streamlit_extras.let_it_rain import rain
  
