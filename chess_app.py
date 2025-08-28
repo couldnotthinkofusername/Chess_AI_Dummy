@@ -10,7 +10,7 @@ from streamlit_extras.let_it_rain import rain
 
 
 def evaluate_board(board: chess.Board) -> float:
-    # Material values (centipawn-ish units)
+
     material = {
         chess.PAWN: 100,
         chess.KNIGHT: 320,
@@ -20,7 +20,6 @@ def evaluate_board(board: chess.Board) -> float:
         chess.KING: 0,
     }
 
-    # Piece-square tables (simplified; white perspective, mirrored for black)
     PST_PAWN = np.array([
         0,  0,  0,  0,  0,  0,  0,  0,
         50, 50, 50, 50, 50, 50, 50, 50,
@@ -101,7 +100,7 @@ def evaluate_board(board: chess.Board) -> float:
             val = base + pst[idx]
             score += val if piece.color == chess.WHITE else -val
 
-    # Mobility (difference in legal moves)
+
     b_w = board.copy()
     b_w.turn = chess.WHITE
     b_b = board.copy()
@@ -109,7 +108,7 @@ def evaluate_board(board: chess.Board) -> float:
     mobility = (len(list(b_w.legal_moves)) - len(list(b_b.legal_moves))) * 2.0
     score += mobility
 
-    # Castling rights bonus
+
     try:
         if board.has_kingside_castling_rights(chess.WHITE) or board.has_queenside_castling_rights(chess.WHITE):
             score += 15
@@ -118,7 +117,7 @@ def evaluate_board(board: chess.Board) -> float:
     except Exception:
         pass
 
-    return score / 100.0  # scale to small numbers like +/- 10
+    return score / 100.0 
 
 
 def extract_features(board: chess.Board) -> np.ndarray:
@@ -149,13 +148,13 @@ class SimpleNN(torch.nn.Module):
 
 
 def train_torch_model(model, epochs=100, lr=0.01):
-    # Kept for reference; unused after removing retraining functionality
+    
     return model
 
 
-# Combined evaluation from basic, sklearn, and torch
+
 def evaluate_combined(board: chess.Board, sklearn_model: LinearRegression, torch_model: SimpleNN) -> float:
-    # Stronger evaluation: rely solely on improved handcrafted eval
+   
     return float(evaluate_board(board))
 
 
@@ -218,7 +217,7 @@ def minimax_best_move(board: chess.Board, depth: int, sklearn_model: LinearRegre
     return best_move
 
 
-# Removed persistent dataset/model helpers (logging, loading, saving, retraining)
+
 
 
 def ai_move(board: chess.Board, sklearn_model: LinearRegression, torch_model: SimpleNN):
@@ -291,7 +290,7 @@ def main() -> None:
     board = st.session_state.board
     player_color = st.session_state.player_color
 
-    # Highest strength as standard (fixed depth)
+    
     depth = 4
 
     # Right panel helpers
@@ -303,7 +302,6 @@ def main() -> None:
             temp.push(mv)
         return sans
 
-    # Current evaluation badge
     cur_eval = evaluate_combined(board, st.session_state.sklearn_model, st.session_state.torch_model)
     eval_badge = f"<span class='badge {'badge-eval-pos' if cur_eval>=0 else 'badge-eval-neg'}'>Eval: {cur_eval:+.2f}</span>"
     turn_badge = f"<span class='badge badge-turn'>{'Your' if board.turn==player_color else 'AI'} turn</span>"
@@ -340,7 +338,7 @@ def main() -> None:
                         For pawn captures, write from-square then to-square (e.g., c4b5).
                         """
                     )
-        # Clear input safely before instantiating the widget
+     
         if st.session_state.clear_move:
             st.session_state.move_input = ""
             st.session_state.clear_move = False
@@ -426,7 +424,11 @@ def main() -> None:
         for i in range(0, len(sans), 2):
             white_mv = sans[i]
             black_mv = sans[i+1] if i+1 < len(sans) else ""
-            rows.append(f"{white_mv} - {black_mv}")
+            if black_mv:
+                row = f"<span style='color:#000'>{white_mv} - {black_mv}</span>"
+            else:
+                row = f"<span style='color:#000'>{white_mv}</span>"
+            rows.append(row)
         history_html = "".join([f"<div>{row}</div>" for row in rows])
         st.markdown("<div class='panel'><b>Move history</b><div class='move-list'>"+ history_html +"</div></div>", unsafe_allow_html=True)
 
@@ -453,7 +455,7 @@ def main() -> None:
         if move is None:
             move = ai_move(board, st.session_state.sklearn_model, st.session_state.torch_model)
         if move:
-            # capture SAN before push
+          
             san_text = board.san(move)
             board.push(move)
             st.session_state.board = board
@@ -469,3 +471,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
